@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>크리스마스 명예의 전당</title>
 <meta name="theme-color" content="#0a1433">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎄%3C/text%3E%3C/svg%3E">
@@ -327,6 +327,30 @@ body.shake main,body.shake .hero{animation:shake .7s}
 .sm-eyes{transform-origin:110px 78px;animation:blinkE 5s infinite}
 @media(max-width:700px){.hero{grid-template-columns:1fr}.mascot.r{display:none}.mascot{min-height:170px}.mascot svg{max-width:170px}
  .podium{min-height:220px}.row{grid-template-columns:38px 1fr auto;padding:10px 12px}.row .del{grid-column:3}.tab{padding:10px 18px}}
+/* ===== 모바일/태블릿 대응 + 멀미 방지(차분한 배경) ===== */
+html,body{max-width:100%;overflow-x:hidden}
+.mbr{display:none}
+h1{text-wrap:balance;word-break:keep-all;padding:0 6px}
+.beam{animation:none!important}.b1{transform:rotate(-12deg)}.b2{transform:rotate(11deg)}
+.aurora i{animation:none!important}
+.rays{animation:none!important}
+.btn.big{animation:none!important;box-shadow:0 6px 26px rgba(230,57,70,.65)}
+.btn.big::after{animation:shine 4.5s ease-in-out infinite}
+.fab{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px)}
+.fab .row2{flex-wrap:wrap;justify-content:flex-end}
+.mini{white-space:nowrap}
+@media(max-width:900px){
+  .mbr{display:block}
+  h1{font-size:clamp(30px,11vw,64px);line-height:1.15}
+  .crown{font-size:.8em}
+  .fab{gap:8px}.mini{font-size:12px;padding:6px 10px}
+  .btn.big{font-size:18px;padding:13px 22px}
+}
+@media(max-width:700px){ .zonehead .zt{font-size:clamp(24px,8vw,40px)} }
+/* 축하 연출 중에는 뒤 화면을 숨겨서 겹쳐 보이지 않고 가볍게 */
+body.celon main,body.celon header,body.celon .fab,body.celon .lights,body.celon .beam,body.celon .sleigh,body.celon .moon{visibility:hidden}
+body.celon main *,body.celon header *{animation:none!important}
+.cel{background:radial-gradient(circle at 50% 45%,rgba(14,26,72,.9) 0,rgba(3,6,22,.95) 80%)}
 </style>
 </head>
 <body data-zone="rudolph">
@@ -337,7 +361,7 @@ body.shake main,body.shake .hero{animation:shake .7s}
 <canvas id="fx"></canvas>
 <div class="lights" id="lights"></div>
 <header>
-  <h1><span class="crown">👑</span> CHRISTMAS 명예의 전당 <span class="crown" style="animation-delay:.6s">👑</span></h1>
+  <h1><span class="crown">👑</span> CHRISTMAS<br class="mbr"> 명예의 전당 <span class="crown" style="animation-delay:.6s">👑</span></h1>
 </header>
 <main>
   <div class="zonehead"><div class="zt" id="zt"></div></div>
@@ -885,7 +909,7 @@ addEventListener('pointerdown',e=>{ if(e.target.closest('button,input,select,.ca
 
 let T=0;
 function frame(t){
-  T=t; gustT++; wind=Math.sin(t*.0004)*.9; if(gustT%520===0) gust=R2(2,4); gust*=.985;
+  T=t; gustT++; wind=Math.sin(t*.0004)*.25; if(gustT%520===0) gust=R2(.5,1); gust*=.985;
   const wv=wind+gust;
   bx.clearRect(0,0,W,H);
   for(const o of bokeh){ o.x+=o.vx; o.y+=o.vy; o.p+=.015; if(o.y<-100){o.y=H+100;o.x=Math.random()*W;} const al=.07+.06*Math.sin(o.p);
@@ -955,11 +979,11 @@ function celebrate(pos, name, game, score, rec){
    <div class="ctitle">${letters}</div><div class="cname">${esc(name)}</div>
    <div class="cscore"><b id="cnum">0</b>${GAMES[game].unit}</div><div class="czone">${GAMES[game].short}</div></div>
    <div class="cdismiss">화면을 누르면 닫혀요</div>`;
-  document.body.appendChild(el);
+  document.body.appendChild(el); document.body.classList.add('celon');
   const t0=performance.now();
   (function tick(now){ const k=Math.min(Math.max((now-t0-1100)/1300,0),1), n=$('cnum'); if(!n||!el.isConnected) return;
     n.textContent=fmt(score*(1-Math.pow(1-k,3))); if(k<1) requestAnimationFrame(tick); })(t0);
-  const close=()=>{ if(!el.isConnected||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>el.remove(),700); };
+  const close=()=>{ if(!el.isConnected||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>{ el.remove(); if(!document.querySelector('.cel')) document.body.classList.remove('celon'); },700); };
   el.onclick=close; setTimeout(close, top?9500:5500);
   confetti(top?320:140); emojiRain(top?42:18); if(top) snowBurst(120);
   if(top){ document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),800); }
